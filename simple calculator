@@ -1,0 +1,182 @@
+# Imports
+from guizero import Text, PushButton, App, Box, info
+
+# Make the application
+app = App(title="Calculator", bg="#262626", width=350, height=550)
+
+# Global Variables
+calculationString = ""
+answer = 0
+justCalculated = False  # Track if '=' was just clicked
+
+# Functions
+def updateDisplay():
+    if len(calculationString) == 0:
+        calculation.value = "0"
+    elif len(calculationString) > 16:
+        calculation.value = calculationString[-16:]  # Show only the last 16 characters
+    else:
+        calculation.value = calculationString
+
+def deleteClick():
+    # Backspace button click event
+    global calculationString, justCalculated
+    justCalculated = False
+    if len(calculationString) > 0:
+        calculationString = calculationString[:-1]
+        updateDisplay()
+
+def clearClick():
+    # Clear button click event
+    global calculationString, answer, justCalculated
+    calculationString = ""
+    answer = 0
+    justCalculated = False
+    answerDisplay.value = "0"
+    updateDisplay()
+
+def pcClick():
+    # Percentage button click event
+    global calculationString, justCalculated
+    justCalculated = False
+    calculationString += "%"
+    updateDisplay()
+
+def divClick():
+    # Division button click event
+    global calculationString, justCalculated
+    justCalculated = False
+    calculationString += " ÷ "
+    updateDisplay()
+
+def multiClick():
+    # Multiplication button click event
+    global calculationString, justCalculated
+    justCalculated = False
+    calculationString += " X "
+    updateDisplay()
+
+def minusClick():
+    # Subtraction button click event
+    global calculationString, justCalculated
+    justCalculated = False
+    calculationString += " - "
+    updateDisplay()
+
+def addClick():
+    # Addition button click event
+    global calculationString, justCalculated
+    justCalculated = False
+    calculationString += " + "
+    updateDisplay()
+
+def sqClick():
+    # Square button click event
+    global calculationString, justCalculated
+    justCalculated = False
+    calculationString += "^2"
+    updateDisplay()
+
+def equalsClick():
+    # Equals button click event
+    global calculationString, answer, justCalculated
+    if len(calculationString) == 0:
+        return
+    if len(calculationString) > 16:
+        info("Error", "Calculation string exceeds 16 characters. Please simplify your expression.")
+        return
+    try:
+        # Replace symbols with Python operators
+        expression = calculationString.replace("÷", "/").replace("X", "*").replace("^2", "**2").replace("%", "/100").strip(" ")
+        answer = eval(expression)
+        answerDisplay.value = str(answer)
+        calculationString = str(answer)
+        justCalculated = True  # Flag that a calculation just finished
+    except Exception as e:
+        info("Error", f"Invalid calculation: {e}")
+
+def numberClick(num):
+    # Number button click event
+    global calculationString, justCalculated
+    if justCalculated:
+        # Overwrite calculationString if typing a new number directly after '='
+        calculationString = str(num)
+        justCalculated = False
+    else:
+        calculationString += str(num)
+    updateDisplay()
+
+# Main holder
+main = Box(app, layout="grid", align="top")
+
+# Number display
+numDisplayGrid = Box(main, layout="grid", grid=[0,0])
+spacer = Text(numDisplayGrid, text="  ", grid=[0,0])
+calculation = Text(numDisplayGrid, text=calculationString, color="white", grid=[0,1], width=16)
+spacer = Text(numDisplayGrid, text="  ", size="4", grid=[0,2])
+answerDisplay = Text(numDisplayGrid, text=str(answer), color="white", grid=[0,3], width=16)
+spacer = Text(numDisplayGrid, text="  ", grid=[0,4])
+
+calculation.text_color = "white"; calculation.bg = "#262626"; calculation.font = "Courier New"; calculation.size = 20; calculation.bold = True
+answerDisplay.text_color = "white"; answerDisplay.bg = "#262626"; answerDisplay.font = "Courier New"; answerDisplay.size = 28; answerDisplay.bold = True
+
+#===============
+# Buttons
+#===============
+btnGrid = Box(main, layout="grid", grid=[0,1])
+
+# Row 1
+delete = PushButton(btnGrid, text="⌦", grid=[0,0], width=2, height=1, command=deleteClick)
+clear = PushButton(btnGrid, text="AC", grid=[1,0], width=2, height=1, command=clearClick)
+pc = PushButton(btnGrid, text="%", grid=[2,0], width=2, height=1, command=pcClick)
+div = PushButton(btnGrid, text="÷", grid=[3,0], width=2, height=1, command=divClick)
+
+# Row 2
+seven = PushButton(btnGrid, text="7", grid=[0,1], width=2, height=1, command=lambda: numberClick(7))
+eight = PushButton(btnGrid, text="8", grid=[1,1], width=2, height=1, command=lambda: numberClick(8))
+nine = PushButton(btnGrid, text="9", grid=[2,1], width=2, height=1, command=lambda: numberClick(9))
+multi = PushButton(btnGrid, text="X", grid=[3,1], width=2, height=1, command=multiClick)
+
+# Row 3
+four = PushButton(btnGrid, text="4", grid=[0,2], width=2, height=1, command=lambda: numberClick(4))
+five = PushButton(btnGrid, text="5", grid=[1,2], width=2, height=1, command=lambda: numberClick(5))
+six = PushButton(btnGrid, text="6", grid=[2,2], width=2, height=1, command=lambda: numberClick(6))
+minus = PushButton(btnGrid, text="-", grid=[3,2], width=2, height=1, command=minusClick)
+
+# Row 4
+one = PushButton(btnGrid, text="1", grid=[0,3], width=2, height=1, command=lambda: numberClick(1))
+two = PushButton(btnGrid, text="2", grid=[1,3], width=2, height=1, command=lambda: numberClick(2))
+three = PushButton(btnGrid, text="3", grid=[2,3], width=2, height=1, command=lambda: numberClick(3))
+add = PushButton(btnGrid, text="+", grid=[3,3], width=2, height=1, command=addClick)
+
+# Row 5
+sq = PushButton(btnGrid, text="^2", grid=[0,4], width=2, height=1, command=sqClick)
+zero = PushButton(btnGrid, text="0", grid=[1,4], width=2, height=1, command=lambda: numberClick(0))
+decimal = PushButton(btnGrid, text=".", grid=[2,4], width=2, height=1, command=lambda: numberClick('.'))
+equals = PushButton(btnGrid, text="=", grid=[3,4], width=2, height=1, command=equalsClick)
+
+# Set Text Colours
+delete.text_color = "white"; delete.bold = True; delete.bg="#696969"; delete.text_size = 16
+clear.text_color = "white"; clear.bold = True; clear.bg="#696969"; clear.text_size = 16
+pc.text_color = "white"; pc.bold = True; pc.bg="#696969"; pc.text_size = 16
+div.text_color = "white"; div.bold = True; div.bg="#ffab36"; div.text_size = 16
+seven.text_color = "white"; seven.bold = True; seven.bg="#5a5a5a"; seven.text_size = 16
+eight.text_color = "white"; eight.bold = True; eight.bg="#5a5a5a"; eight.text_size = 16
+nine.text_color = "white"; nine.bold = True; nine.bg="#5a5a5a"; nine.text_size = 16
+multi.text_color = "white"; multi.bold = True; multi.bg="#ffab36"; multi.text_size = 16
+four.text_color = "white"; four.bold = True; four.bg="#5a5a5a"; four.text_size = 16
+five.text_color = "white"; five.bold = True; five.bg="#5a5a5a"; five.text_size = 16
+six.text_color = "white"; six.bold = True; six.bg="#5a5a5a"; six.text_size = 16
+minus.text_color = "white"; minus.bold = True; minus.bg="#ffab36"; minus.text_size = 16
+one.text_color = "white"; one.bold = True; one.bg="#5a5a5a"; one.text_size = 16
+two.text_color = "white"; two.bold = True; two.bg="#5a5a5a"; two.text_size = 16
+three.text_color = "white"; three.bold = True; three.bg="#5a5a5a"; three.text_size = 16
+add.text_color = "white"; add.bold = True; add.bg="#ffab36"; add.text_size = 16
+sq.text_color = "white"; sq.bold = True; sq.bg="#5a5a5a"; sq.text_size = 16
+zero.text_color = "white"; zero.bold = True; zero.bg="#5a5a5a"; zero.text_size = 16
+decimal.text_color = "white"; decimal.bold = True; decimal.bg="#5a5a5a"; decimal.text_size = 16
+equals.text_color = "white"; equals.bold = True; equals.bg="#ffab36"; equals.text_size = 16
+
+# Run Application
+info("Info", "Calculator answer character limit is 16. If the answer exceeds this limit, only the last 16 characters will be displayed. Coded by Cassian")
+app.display()
